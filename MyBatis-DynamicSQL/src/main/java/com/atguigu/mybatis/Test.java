@@ -6,5 +6,6 @@ public class Test {
         System.out.println("git test update");
         System.out.println("git test update 2");
         System.out.println("git test update hot-fix");
+        System.out.println("git test update master");
     }
 }
