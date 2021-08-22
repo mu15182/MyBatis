@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mybatis.dao.EmployeeMapper">
+<!--
+namespace:名称空间;指定为接口的全类名
+id：唯一标识
+resultType：返回值类型
+#{id}：从传递过来的参数中取出id值
+
+public Employee getEmpById(Integer id);
+ -->
+
+	<select id="getEmpsByDeptno" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from employee where deptno=#{deptno} and last_name like '%${lastName}%'
+	</select>
+	<select id="getEmpsByLastNameLikeReturnMap" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from employee where last_name like #{lastName}
+	</select>
+	<select id="getEmpByIdReturnMap" resultType="map">
+		select * from employee where id = #{id}
+	</select>
+	<select id="getEmpsByLastNameLike" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from employee where last_name like #{lastName}
+	</select>
+	<select id="getEmpByIdAndLastName" resultType="com.atguigu.mybatis.bean.Employee">
+		select * from employee where id = #{id} and last_name=#{lastName}
+	</select>
+<!--	自定义某个javabean封装规则
+		type：自定义的java类型
+		id：唯一id方便使用
+-->
+
+	<resultMap id="myEmp" type="com.atguigu.mybatis.bean.Employee">
+
+		<id column="id" property="id"></id>
+		<result column="ename" property="lastName"></result>
+		<result column="sal" property="sal"></result>
+		<result column="deptno" property="deptno"></result>
+		<association property="dept" javaType="com.atguigu.mybatis.bean.Department">
+			<id column="deptno" property="id"></id>
+			<result column="dname" property="name"></result>
+			<result column="manager_id" property="managerId"></result>
+			<result column="location_id" property="locationId"></result>
+
+		</association>
+<!--		<result column="deptno" property="dept.id"></result>-->
+<!--		<result column="dname" property="dept.name"></result>-->
+<!--		<result column="manager_id" property="dept.managerId"></result>-->
+<!--		<result column="location_id" property="dept.locationId"></result>-->
+
+	</resultMap>
+	<resultMap id="myEmpByStep" type="com.atguigu.mybatis.bean.Employee">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName"></result>
+		<result column="sal" property="sal"></result>
+		<result column="deptno" property="deptno"></result>
+		<association property="dept"
+					 select="com.atguigu.mybatis.dao.DepartmentMapper.getDeptyById"
+					 column="deptno"
+		>
+
+		</association>
+	</resultMap>
+	<resultMap id="myEmpCase" type="com.atguigu.mybatis.bean.Employee">
+		<id column="id" property="id"></id>
+		<result column="last_name" property="lastName"></result>
+		<result column="sal" property="sal"></result>
+		<result column="deptno" property="deptno"></result>
+		<discriminator javaType="integer" column="sal">
+			<case value="10000" resultType="com.atguigu.mybatis.bean.Employee">
+				<association property="dept" select="com.atguigu.mybatis.dao.DepartmentMapper.getDeptyById"
+							column="{id=deptno}">
+
+				</association>
+			</case>
+			<case value="6300" resultType="com.atguigu.mybatis.bean.Employee">
+				<id column="id" property="id"></id>
+				<result column="last_name" property="lastName"></result>
+				<result column="sal" property="sal"></result>
+				<result column="sal" property="deptno"></result>
+			</case>
+		</discriminator>
+	</resultMap>
+	<select id="getEmpByIdStep" resultMap="myEmpCase">
+		select * from employee where id=#{id}
+	</select>
+<!--	<select id="getEmpByIdStep" resultMap="myEmpByStep">-->
+<!--		select * from employee where id = #{id}-->
+
+<!--	</select>-->
+	<select id="getEmpAndDept" resultMap="myEmp">
+		select a.id,a.last_name ename,a.sal,a.deptno,b.`name` dname,b.manager_id,b.location_id
+		from employee a
+		inner join department b
+		on a.deptno=b.id
+		where a.id=#{id}
+	</select>
+	<select id="getEmpById" resultMap="myEmp">
+		select * from employee where id = #{id}
+	</select>
+	<insert id="addEmp" parameterType="com.atguigu.mybatis.dao.EmployeeMapper"
+			useGeneratedKeys="true" keyProperty="id">
+		insert into employee(last_name,sal,deptno)
+		value (#{lastName},#{sal},#{deptno})
+	</insert>
+	<update id="updateEmp">
+		update employee
+		set last_name=#{lastName},
+			sal=#{sal},
+			deptno=#{deptno}
+		where id = #{id}
+	</update>
+	<delete id="deleteEmpById">
+		delete from employee where id=#{id}
+	</delete>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mybatis.dao.EmployeeDynamicSQLMapper">
+    <sql id="insertColumn">
+        last_name,sal,deptno
+    </sql>
+    <insert id="addEmps">
+        insert into employee(
+            <include refid="insertColumn"></include>
+        )
+        values
+        <foreach collection="emps" item="emp" separator=",">
+            (#{emp.lastName},#{emp.sal},#{emp.deptno})
+        </foreach>
+
+
+    </insert>
+    <select id="getEmpsByConditionForeach" resultType="com.atguigu.mybatis.bean.Employee">
+        select * from employee
+        where
+        <!--
+            collection:指定要遍历的集合；
+                    list类型的参数会特殊处理封装在map中，map的key就叫list
+            item：将当前遍历出的元素赋值给item
+            separator：每个元素之间的分隔符
+            open：遍历出所有结果 拼接一个开始的字符
+            close：拼接一个结束的字符
+            index:索引。遍历list的时候是索引
+                        遍历map的时候index表示的就是map的key，item就是map的值
+
+        -->
+        id in <foreach collection="ids" item="item_id" separator="," open="(" close=")">
+                #{item_id}
+                </foreach>
+
+    </select>
+    <update id="updateEmp">
+        update employee
+
+		<set>
+            <if test="lastName != null">
+                last_name=#{lastName},
+            </if>
+            <if test="sal != null">
+                sal=#{sal},
+            </if>
+            <if test="deptno != null">
+                deptno=#{deptno}
+            </if>
+        </set>
+
+
+		where id = #{id}
+    </update>
+    <select id="getEmpsByConditionIf" resultType="com.atguigu.mybatis.bean.Employee">
+        select * from employee
+        where 1=1
+            <if test="id!=null">
+                and id=#{id}
+            </if>
+            <if test="lastName!=null and lastName!=''">
+                and last_name like #{lastName}
+            </if>
+            <if test="sal != null">
+                and sal = #{sal}
+            </if>
+            <if test="deptno != null">
+                and deptno = #{deptno}
+            </if>
+
+    </select>
+
+</mapper>

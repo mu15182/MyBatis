@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>getEmps</title>
+</head>
+<body>
+<h1>getEmps</h1>
+<table id="app">
+    <tr>
+        <th>id</th>
+        <th>lastName</th>
+        <th>sal</th>
+        <th>deptno</th>
+    </tr>
+    <tr v-for="emp in emps">
+        <td>{{emp.id}}</td>
+        <td>{{emp.lastName}}</td>
+        <td>{{emp.sal}}</td>
+        <td>{{emp.deptno}}</td>
+    </tr>
+</table>
+
+<script th:src="@{/static/js/vue.js}" type="text/javascript" charset="utf-8"></script>
+
+<script th:inline="javascript">
+    var app = new Vue({
+        el:"#app",
+        data:{
+            emps:[]
+        },
+        created(){
+            this.emps=[[${emps}]]
+            console.log(this.emps)
+        }
+    })
+</script>
+</body>
+</html>
